@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevOps Notes - MD Viewer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
@@ -44,8 +44,8 @@
         /* Sidebar Styles */
         .sidebar {
             width: 280px;
-            background: var(--bg-card);
-            border-right: 1px solid var(--border);
+            background: var(--bg-dark);
+            border-right: none;
             padding: 1.5rem;
             position: fixed;
             height: 100vh;
@@ -69,7 +69,7 @@
         .logo {
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: none;
         }
 
         .logo-icon {
@@ -96,17 +96,17 @@
         .search-box input {
             width: 100%;
             padding: 0.5rem 0.75rem;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
+            background: var(--bg-card);
+            border: none;
             border-radius: 4px;
             color: var(--text-primary);
             font-size: 0.9rem;
-            transition: border 0.2s;
+            transition: background 0.2s;
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: var(--primary);
+            background: var(--bg-hover);
         }
 
         .search-icon {
@@ -135,7 +135,6 @@
             padding: 0.6rem 0.75rem;
             background: transparent;
             border: none;
-            border-left: 2px solid transparent;
             color: var(--text-primary);
             font-size: 0.9rem;
             cursor: pointer;
@@ -145,12 +144,10 @@
 
         .menu-item button:hover {
             background: var(--bg-hover);
-            border-left-color: var(--primary);
         }
 
         .menu-item button.active {
             background: var(--bg-hover);
-            border-left-color: var(--primary);
             font-weight: 500;
         }
 
@@ -179,9 +176,9 @@
         }
 
         .header {
-            background: var(--bg-card);
+            background: transparent;
             padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: none;
             margin-bottom: 1.5rem;
         }
 
@@ -219,14 +216,14 @@
 
         #content h1 {
             font-size: 2rem;
-            border-bottom: 2px solid var(--primary);
+            border-bottom: none;
             padding-bottom: 0.5rem;
             font-weight: 600;
         }
 
         #content h2 {
             font-size: 1.6rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: none;
             padding-bottom: 0.5rem;
             font-weight: 600;
         }
@@ -250,22 +247,46 @@
         }
 
         #content code {
-            background: var(--bg-card);
-            padding: 0.2rem 0.4rem;
-            border-radius: 2px;
-            font-family: 'Consolas', 'Monaco', monospace;
+            background: #f0f4ff;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 0.9em;
-            color: var(--text-primary);
-            border: 1px solid var(--border);
+            color: #0066cc;
+            border: none;
+            font-weight: 500;
         }
 
         #content pre {
-            background: var(--bg-card);
-            padding: 1rem;
-            border-radius: 4px;
+            background: #282c34;
+            padding: 1.5rem;
+            border-radius: 8px;
             overflow-x: auto;
             margin: 1.5rem 0;
-            border: 1px solid var(--border);
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        #content pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: #abb2bf;
+            display: block;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        #content pre::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #61afef, #c678dd, #e06c75, #e5c07b);
+            border-radius: 8px 8px 0 0;
         }
 
         #content pre code {
@@ -275,10 +296,11 @@
         }
 
         #content blockquote {
-            border-left: 3px solid var(--primary);
+            border-left: none;
             padding-left: 1rem;
             margin: 1.5rem 0;
             color: var(--text-secondary);
+            font-style: italic;
         }
 
         #content a {
@@ -299,7 +321,8 @@
         #content table th,
         #content table td {
             padding: 0.75rem;
-            border: 1px solid var(--border);
+            border: none;
+            border-bottom: 1px solid var(--bg-card);
         }
 
         #content table th {
@@ -310,7 +333,7 @@
         #content img {
             max-width: 100%;
             margin: 1.5rem 0;
-            border: 1px solid var(--border);
+            border: none;
         }
 
         .loading {
@@ -361,7 +384,7 @@
         .feature-card {
             background: var(--bg-card);
             padding: 1rem;
-            border: 1px solid var(--border);
+            border: none;
         }
 
         .feature-card:hover {
@@ -391,7 +414,7 @@
             left: 1rem;
             z-index: 1000;
             background: var(--primary);
-            border: 1px solid var(--border);
+            border: none;
             padding: 0.5rem 0.75rem;
             color: white;
             cursor: pointer;
