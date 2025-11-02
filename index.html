@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Notes - MD Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #000;
+            --primary-dark: #111;
+            --secondary: #333;
+            --bg-dark: #fff;
+            --bg-card: #f5f5f5;
+            --bg-hover: #e5e5e5;
+            --text-primary: #000;
+            --text-secondary: #666;
+            --border: #ddd;
+            --success: #000;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fff;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .logo {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-icon {
+            display: none;
+        }
+
+        .logo-text h1 {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .logo-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .search-box {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: border 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-icon {
+            display: none;
+        }
+
+        .menu-header {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .menu-item button {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: transparent;
+            border: none;
+            border-left: 2px solid transparent;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .menu-item button:hover {
+            background: var(--bg-hover);
+            border-left-color: var(--primary);
+        }
+
+        .menu-item button.active {
+            background: var(--bg-hover);
+            border-left-color: var(--primary);
+            font-weight: 500;
+        }
+
+        .file-icon {
+            display: none;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 400;
+        }
+
+        .file-size {
+            display: none;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            max-width: calc(100% - 280px);
+        }
+
+        .header {
+            background: var(--bg-card);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-icon {
+            display: none;
+        }
+
+        .breadcrumb {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .content-card {
+            background: var(--bg-dark);
+            padding: 2rem;
+            line-height: 1.7;
+        }
+
+        #content {
+            color: var(--text-primary);
+        }
+
+        #content h1, #content h2, #content h3, #content h4, #content h5, #content h6 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        #content h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        #content h2 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        #content h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        #content p {
+            margin-bottom: 1rem;
+        }
+
+        #content ul, #content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #content li {
+            margin-bottom: 0.5rem;
+        }
+
+        #content code {
+            background: var(--bg-card);
+            padding: 0.2rem 0.4rem;
+            border-radius: 2px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        #content pre {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+
+        #content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        #content blockquote {
+            border-left: 3px solid var(--primary);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        #content a {
+            color: var(--text-primary);
+            text-decoration: underline;
+        }
+
+        #content a:hover {
+            color: var(--text-secondary);
+        }
+
+        #content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        #content table th,
+        #content table td {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+        }
+
+        #content table th {
+            background: var(--bg-card);
+            font-weight: 600;
+        }
+
+        #content img {
+            max-width: 100%;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .welcome-screen {
+            padding: 3rem 1rem;
+        }
+
+        .welcome-icon {
+            display: none;
+        }
+
+        .welcome-screen h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .welcome-screen p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .feature-card:hover {
+            background: var(--bg-hover);
+        }
+
+        .feature-icon {
+            display: none;
+        }
+
+        .feature-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .feature-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: var(--primary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 999;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                max-width: 100%;
+                padding: 1rem;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            #content h1 {
+                font-size: 1.75rem;
+            }
+
+            #content h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Menu</button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-text">
+                    <h1>DevOps Notes</h1>
+                    <p>Markdown Viewer</p>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterFiles()">
+            </div>
+
+            <div class="menu-header">Documents</div>
+            <ul class="menu-list" id="fileList">
+                <!-- Files will be loaded here dynamically -->
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h2 id="currentFile">Welcome</h2>
+                <div class="breadcrumb">
+                    <span id="breadcrumb">Home / Welcome</span>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div id="content">
+                    <div class="welcome-screen">
+                        <h1>DevOps Notes</h1>
+                        <p>Select a document from the sidebar to get started</p>
+                        
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <div class="feature-title">Fast & Responsive</div>
+                                <div class="feature-desc">Instant loading</div>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-title">Clean UI</div>
+                                <div class="feature-desc">Minimal interface</div>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-title">Search</div>
+                                <div class="feature-desc">Find documents quickly</div>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-title">Code Highlighting</div>
+                                <div class="feature-desc">Syntax highlighting</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Configuration
+        const MD_FILES = ['unit4.md', 'unit5.md'];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFileList();
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                highlight: function(code, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, { language: lang }).value;
+                    }
+                    return hljs.highlightAuto(code).value;
+                }
+            });
+        });
+
+        // Load file list into sidebar
+        function loadFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            MD_FILES.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'menu-item';
+                
+                const displayName = file.replace('.md', '').replace(/[-_]/g, ' ');
+                
+                li.innerHTML = `
+                    <button onclick="loadMarkdown('${file}', this)">
+                        <div class="file-info">
+                            <div class="file-name">${capitalizeWords(displayName)}</div>
+                        </div>
+                    </button>
+                `;
+                
+                fileList.appendChild(li);
+            });
+        }
+
+        // Load and render markdown file
+        async function loadMarkdown(filename, button) {
+            const content = document.getElementById('content');
+            const currentFile = document.getElementById('currentFile');
+            const breadcrumb = document.getElementById('breadcrumb');
+            
+            // Update active state
+            document.querySelectorAll('.menu-item button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            // Update header
+            const displayName = filename.replace('.md', '').replace(/[-_]/g, ' ');
+            currentFile.textContent = capitalizeWords(displayName);
+            breadcrumb.textContent = `Home / ${capitalizeWords(displayName)}`;
+            
+            // Show loading
+            content.innerHTML = '<div class="loading">Loading document</div>';
+            
+            try {
+                const response = await fetch(filename);
+                if (!response.ok) throw new Error('File not found');
+                
+                const markdown = await response.text();
+                const html = marked.parse(markdown);
+                content.innerHTML = html;
+                
+                // Highlight code blocks
+                document.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightBlock(block);
+                });
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Close mobile menu
+                if (window.innerWidth <= 768) {
+                    toggleMenu();
+                }
+            } catch (error) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 3rem;">
+                        <h2>Error Loading Document</h2>
+                        <p style="color: var(--text-secondary); margin-top: 1rem;">
+                            Could not load "${filename}". Please make sure the file exists in the same directory.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // Filter files based on search
+        function filterFiles() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const menuItems = document.querySelectorAll('.menu-item');
+            
+            menuItems.forEach(item => {
+                const fileName = item.textContent.toLowerCase();
+                if (fileName.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Toggle mobile menu
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Helper function to capitalize words
+        function capitalizeWords(str) {
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                sidebar.classList.contains('active') && 
+                !sidebar.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                toggleMenu();
+            }
+        });
+    </script>
+</body>
+</html>
